@@ -26,7 +26,6 @@ nomes = ['grupo via sul piedade','grupo via euro olinda','jjk Autos'\
 codigos= [1000, 1014,  1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008,\
           1009, 1010, 1011, 1012, 1013, 1015, 1016, 'yyyy', 'xxxx'] # lista codigo
 
-endereco = []
 dicionario = dict(zip(nomes, codigos)) # zipando duas lista e criando dict 
 for nome, codigo in dicionario.items(): # loop para interagir 
         tabela = pd.read_excel('relatorio_geral.xlsx', sheet_name = 'setembro')   # impontando base 
