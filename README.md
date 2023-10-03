@@ -28,10 +28,8 @@ codigos= [1000, 1014,  1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008,\
 endereco = []
 dicionario = dict(zip(nomes, codigos)) # zipando duas lista e criando dict 
 for nome, codigo in dicionario.items(): # loop para interagir 
-   # if 'granvia imb.' in nome:
         tabela = pd.read_excel('relatorio_geral.xlsx', sheet_name = 'setembro')   # impontando base 
-        tabela = tabela.query("MÊS == 'setembro'")
-        
+        tabela = tabela.query("MÊS == 'setembro'")       
         
         #calculando a quantidade
         tabela['lojas'] = tabela['lojas'].str.strip().str.lower()
@@ -107,7 +105,6 @@ data: {data_atual}'''
 
         print(f'A loja {nome}.{codigo} esta concluido') # imprimir
                 
-        endereco.append(output_file)
-print(endereco)        
+             
           
    
