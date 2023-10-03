@@ -1,9 +1,8 @@
 # recifeplacas.github.io
 # Esse script faz com que uma base em excel seja calculada os indicadores e seja convertida em pdf por empresas
  
-
-
-import os  # todos os importe necessarios 
+ # todos os importe necessarios 
+import os 
 import locale
 import pandas as pd
 from docx import Document
@@ -24,25 +23,30 @@ nomes = ['grupo via sul piedade','grupo via euro olinda','jjk Autos'\
          'honda piedade novos','honda caruaru novos', 'Rivaldo_carro', 'hyundai', 'hyundai_segundo']
 
 codigos= [1000, 1014,  1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008,\
-          1009, 1010, 1011, 1012, 1013, 1015, 1016, 'yyyy', 'xxxx'] # lista codigo
+          1009, 1010, 1011, 1012, 1013, 1015, 1016, 'yyyy', 'xxxx'] 
 
 dicionario = dict(zip(nomes, codigos)) # zipando duas lista e criando dict 
 for nome, codigo in dicionario.items(): # loop para interagir 
-        tabela = pd.read_excel('relatorio_geral.xlsx', sheet_name = 'setembro')   # impontando base 
+         # impontando base 
+        tabela = pd.read_excel('relatorio_geral.xlsx', sheet_name = 'setembro')  
         tabela = tabela.query("MÊS == 'setembro'")       
         
         #calculando a quantidade
+        # quantidade indicadores
         tabela['lojas'] = tabela['lojas'].str.strip().str.lower()
-        quantidade = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].count() # quantidade indicadores
+        quantidade = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].count()
 
-        soma_loja_codigo = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].sum() # soma indicadores
+        # soma indicadores
+        soma_loja_codigo = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].sum() 
         
-        itens_loja_especifica = tabela.loc[tabela['codigos'] == codigo, 'PLACAS'] # seaparando os itens
+        # seaparando os itens
+        itens_loja_especifica = tabela.loc[tabela['codigos'] == codigo, 'PLACAS'] 
         itens_string = ', '.join(itens_loja_especifica)
 
         data_atual = datetime.now().strftime('%d/%m/%Y') # criando a data 
 
-        valor_descrito = num2words(soma_loja_codigo, lang= 'pt_BR') # valor por escrito 
+        # valor por escrito 
+        valor_descrito = num2words(soma_loja_codigo, lang= 'pt_BR') 
 
         locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
 
@@ -65,7 +69,6 @@ data: {data_atual}'''
         programador = ' programadorJr : Rafael'
 
         doc = Document() # criando documento 
-
         doc.add_heading('Recife Placas', 0) #  titulo
         doc.add_heading('RELAÇAO DE PLACAS CNPJ 15.436.220.0001-30') # subtitulo 
 
