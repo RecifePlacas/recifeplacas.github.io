@@ -1,49 +1,113 @@
 # recifeplacas.github.io
-# ISSO E UM TEESTE
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="styles/style.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+# ESSE SCRIPT FAZ COM QUE UMA BASE EM EXCEL SEJA CALCULADA OS INDICADORES E SEJA CONVERTIDA EM PDF POR EMPRESAS 
 
-    <title>PlacasMercosul</title>
-</head>
-    <body>
-        <header>
-            <h1><span class="fa fa-car" c="red"></span>Ola vocé esta na homepage</h1>
 
-            <P id="subtitulo"><b>Emplacamentos de Veiculos.</b></P>
-        </header>
+import os  # todos os importe necessarios 
+import locale
+import pandas as pd
+from docx import Document
+from docx2pdf import convert
+from datetime import datetime
+from num2words import num2words
+from datetime import datetime, timedelta
+from docx.shared import RGBColor
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 
-        <section id="secaoimag">
-            <img src="images/WhatsApp Image 2023-09-25 at 11.18.00.jpeg" alt="imagem de uma placa mercosul.">
-            <img id= "escudo" src="images/WhatsApp Image 2023-09-25 at 13.15.30.jpeg" alt="imagem do escudo do detran de pernambuco.">
-            <div id="botao">
-                <button class="button">Criar uma Conta</button>
-            </div>
-        </section>
+nomes = ['grupo via sul piedade','grupo via euro olinda','jjk Autos'\
+         ,'Rivaldo_moto', 'Pedragon rui b', 'Kia imb', 'granvia imb.'\
+        , 'tambai av recife','tambai imbiribeira','honda torre novos','honda usados '\
+         ,'grupo via sul repasse','honda imb novos','honda prado novos',\
+         'honda piedade novos','honda caruaru novos', 'Rivaldo_carro', 'hyundai', 'hyundai_segundo']
+
+codigos= [1000, 1014,  1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008,\
+          1009, 1010, 1011, 1012, 1013, 1015, 1016, 'yyyy', 'xxxx'] # lista codigo
+
+endereco = []
+dicionario = dict(zip(nomes, codigos)) # zipando duas lista e criando dict 
+for nome, codigo in dicionario.items(): # loop para interagir 
+   # if 'granvia imb.' in nome:
+        tabela = pd.read_excel('relatorio_geral.xlsx', sheet_name = 'setembro')   # impontando base 
+        tabela = tabela.query("MÊS == 'setembro'")
         
-        <div id="metade-baixo">
-            <p id="introdution">
-                <b>A equipe da <span id="variableOutput"></span>transforma seu veículo em uma verdadeira obra de arte com nossas placas Mercosul.
-                Design Único, exclusico, refletiva, alta qualidade, durabilidade
-                Nossas placas Mercosul são feitas com alta qualidade, garantindo resistência e longevidade, nas condições mais adversas.
-                Instalaçoes compatíveis com todos os veículos, nossas placas são de fácil instalação, proporcionando visual do seu carro.
-                </b>
-            </p>                
-       
-            <div id="endereco">
-                <p class="meu-link">Click aqui e seja redirecionado .<a class="minha-ancora"href="http://wa.me/5581985436959">WhatsApp (81) 9 8543-6959</a> </p>
-
-                <p class="meu-link">E-mail para contato.<a class="minha-ancora" href="https://outlook.live.com/mail/0/">RecifePlacas@hotmail.com</a></p>
-            </div>
-        </div>       
         
-        <script src="scripts/main.js"></script>
+        #calculando a quantidade
+        tabela['lojas'] = tabela['lojas'].str.strip().str.lower()
+        quantidade = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].count() # quantidade indicadores
 
-     </body>
-    
- </html>
+        soma_loja_codigo = tabela.loc[tabela['codigos'] == codigo, 'V. TOTAL - R$'].sum() # soma indicadores
+        
+        itens_loja_especifica = tabela.loc[tabela['codigos'] == codigo, 'PLACAS'] # seaparando os itens
+        itens_string = ', '.join(itens_loja_especifica)
 
+        data_atual = datetime.now().strftime('%d/%m/%Y') # criando a data 
+
+        valor_descrito = num2words(soma_loja_codigo, lang= 'pt_BR') # valor por escrito 
+
+        locale.setlocale(locale.LC_TIME, 'pt_BR.utf8')
+
+        data_atual = datetime.now()  
+
+        mes_anterior = data_atual - timedelta(days=20)
+
+        nome_mes_anterior = mes_anterior.strftime('%B')  
+
+        mensagem = f'''Segue Relaçao das placas, loja {nome.upper()} Loja Nº({codigo}),este 
+relatorio no valor de R$ {soma_loja_codigo:,.2f}, ({valor_descrito} reais) , é referente
+aos itens placas do Mercosul confeccionadas para os veículos abaixo relacionados, no
+período mes de ({nome_mes_anterior})-2023, solicito conferencia para emissao de nota fiscal.
+'''
+        texto = f'''Atenciosamente: Rafael Leao da silva, Fone: 81 9 83685747 / 81 9 85436959
+Rua Major marcelo menezes - casa, 32 Iputinga - Recife- PE - Fone 3223-5317
+data: {data_atual}'''
+
+        texto1 = 'Este documento é produzido de forma integral em python'
+        programador = ' programadorJr : Rafael'
+
+        doc = Document() # criando documento 
+
+        doc.add_heading('Recife Placas', 0) #  titulo
+        doc.add_heading('RELAÇAO DE PLACAS CNPJ 15.436.220.0001-30') # subtitulo 
+
+        p = doc.add_paragraph('')# paragrafos
+        p.alignment = 3
+
+        p.add_run(mensagem).bold= True
+        prior_paragraph = p.insert_paragraph_before()# paragrafos
+        p.alignment = 3
+
+        doc.add_paragraph(itens_string).alignment = 3# paragrafos
+
+        p = doc.add_paragraph()# paragrafos
+        p.add_run(texto)
+        p.alignment = 3
+
+        p = doc.add_paragraph()# paragrafos
+        p.add_run(texto1 + programador)
+        p.alignment = 3
+
+        # Definir a cor vermelha (RGB: 255, 0, 0)
+        cor_verde = RGBColor(0, 128, 0)
+
+        run = p.runs[0]
+        font = run.font
+        font.color.rgb = cor_verde
+
+        temp_file = f'C:/Users/TRANS MASSENA/usuario_rafael/setembro_2023/{nome}.docx' # caminho docx 
+
+        doc.save(temp_file)# salvando caminho 
+
+        output_file = f'C:/Users/TRANS MASSENA/usuario_rafael/setembro_2023/{nome}_{soma_loja_codigo:,.2f}.pdf'# caminho pdf
+
+        convert(temp_file, output_file)# convertendo word em pdf 
+
+        os.remove(temp_file) # removendo o word 
+
+        print(f'A loja {nome}.{codigo} esta concluido') # imprimir
+                
+        endereco.append(output_file)
+print(endereco)        
+          
+   
