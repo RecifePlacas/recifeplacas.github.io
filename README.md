@@ -1,5 +1,6 @@
 # recifeplacas.github.io
-# ESSE SCRIPT FAZ COM QUE UMA BASE EM EXCEL SEJA CALCULADA OS INDICADORES E SEJA CONVERTIDA EM PDF POR EMPRESAS 
+# Esse script faz com que uma base em excel seja calculada os indicadores e seja convertida em pdf por empresas
+ 
 
 
 import os  # todos os importe necessarios 
